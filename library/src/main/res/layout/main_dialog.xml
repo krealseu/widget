@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center">
+
+    <RelativeLayout
+        android:id="@+id/file_pick_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:minWidth="500dp"
+        android:orientation="vertical"
+        android:theme="@style/AlertDialog.AppCompat.Light">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/fileList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/control_panel"
+            android:layout_alignParentTop="true"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbars="vertical" />
+
+        <LinearLayout
+            android:id="@+id/control_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/folder_back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?android:selectableItemBackground"
+                    android:paddingBottom="3dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:paddingTop="3dp"
+                    android:src="@drawable/ic_action_back" />
+
+                <TextView
+                    android:id="@+id/folder_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textSize="20dp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/cancel_button"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="0dp"
+                    android:text="cancel"
+                    android:textColor="#aa000000" />
+
+                <Button
+                    android:id="@+id/newFile_button"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="0dp"
+                    android:text="new folder"
+                    android:textColor="#aa000000" />
+
+                <Button
+                    android:id="@+id/select_button"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="0dp"
+                    android:text="select"
+                    android:textColor="#aa000000" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/permission_ask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ask_grant"
+            android:textSize="20dp"
+            android:textStyle="italic"
+            android:padding="10dp"
+            android:gravity="center"/>
+
+        <Button
+            android:id="@+id/grant_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Grant"
+            android:theme="@style/Widget.AppCompat.Button.Borderless" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/go_setting_grant"
+            android:textSize="20dp"
+            android:textStyle="italic"
+            android:padding="10dp"
+            android:gravity="center"/>
+
+        <Button
+            android:id="@+id/go_setting_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Go Setting"
+            android:theme="@style/Widget.AppCompat.Button.Borderless" />
+    </LinearLayout>
+
+</FrameLayout>

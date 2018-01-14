@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ask_grant">需要读写存储的权限，点击下面按钮授权</string>
+    <string name="go_setting_grant">如果授权无效，点击下面按钮，进入app info设置界面，打开应用的读写权限</string>
+</resources>
