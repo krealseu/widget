@@ -1,1 +1,3 @@
-filepickdialog
+#Custom widget
+
+##filepickdialog
