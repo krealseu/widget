@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://C:\CC\AndroidStudio\filepickdialog\AndroidStudio-filepickdialog.iml" filepath="C:\CC\AndroidStudio\filepickdialog\AndroidStudio-filepickdialog.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/filepickdialog.iml" filepath="$PROJECT_DIR$/filepickdialog.iml" />
-      <module fileurl="file://C:\CC\AndroidStudio\filepickdialog\filepickdialog\filepickdialog-filepickdialog.iml" filepath="C:\CC\AndroidStudio\filepickdialog\filepickdialog\filepickdialog-filepickdialog.iml" />
-      <module fileurl="file://$PROJECT_DIR$/library/filepickdialog-filepickdialog.iml" filepath="$PROJECT_DIR$/library/filepickdialog-filepickdialog.iml" />
+      <module fileurl="file://$PROJECT_DIR$/filepickdialog/filepickdialog.iml" filepath="$PROJECT_DIR$/filepickdialog/filepickdialog.iml" />
+      <module fileurl="file://$PROJECT_DIR$/widget.iml" filepath="$PROJECT_DIR$/widget.iml" />
     </modules>
   </component>
 </project>
