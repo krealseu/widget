@@ -1,8 +1,7 @@
 package org.kreal.widget
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.support.v7.app.AppCompatActivity
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 import org.kreal.widget.filepickdialog.FilePickDialogFragment
@@ -17,7 +16,7 @@ class MainActivity : AppCompatActivity() {
             FilePickDialogFragment().apply {
                 selectFolder = true
                 setListener {
-                    var string: String = ""
+                    var string = ""
                     it.forEach {
                         string += it
                     }

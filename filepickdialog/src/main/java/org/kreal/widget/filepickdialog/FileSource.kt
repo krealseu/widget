@@ -1,13 +1,16 @@
 package org.kreal.widget.filepickdialog
 
-import android.util.Log
+import org.kreal.widget.filepickdialog.util.MimeHelp
 import java.io.File
 import java.util.*
 
 /**
  * Created by lthee on 2018/1/7.
+ * 数据源
  */
 class FileSource(path: String, private val mineType: String) {
+
+    private val miniHelp = MimeHelp()
 
     var workDir: File
 
@@ -25,7 +28,9 @@ class FileSource(path: String, private val mineType: String) {
 
     private fun loadList(folder: File) {
         lists = folder.listFiles { file ->
-            !file.name.startsWith(".")
+            if (file.isDirectory)
+                true
+            else miniHelp.matches(file.name, mineType)
         }
         lists.sortWith(Comparator { f1, f2 ->
             if (f1.isDirectory && f2.isFile)
@@ -48,9 +53,23 @@ class FileSource(path: String, private val mineType: String) {
         }
     }
 
-    fun getIndex(index: Int): File = lists[index]
+    fun getIndex(index: Int): FileModel {
+        val file = lists[index]
+        val name = file.name
+        val mime = miniHelp.getMimeType(name)
+        val type: FileModel.FileType = if (file.isDirectory) FileModel.FileType.Folder
+        else if (mime.startsWith("image"))
+            FileModel.FileType.Image
+        else if (mime.startsWith("video"))
+            FileModel.FileType.Video
+        else if (mime.startsWith("audio"))
+            FileModel.FileType.Music
+        else
+            FileModel.FileType.File
+        return FileModel(file.name, type, getIndexState(index))
+    }
 
-    fun getIndexState(index: Int): Boolean = isSelected(lists[index].path)
+    private fun getIndexState(index: Int): Boolean = isSelected(lists[index].path)
 
     fun singleSelect(i: Int) {
         val value = lists[i].path

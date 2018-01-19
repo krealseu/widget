@@ -6,18 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import java.io.File
 
 /**
  * Created by lthee on 2018/1/6.
+ * 适配器，将数据的数据模型绑定到view上
  */
-class FileAdapter(private val fileSource: FileSource, clickListener: OnItemClickListener? = null) : RecyclerView.Adapter<FileAdapter.ItemView>() {
+class FileAdapter(private val fileSource: FileSource, val clickListener: OnItemClickListener? = null) : RecyclerView.Adapter<FileAdapter.ItemView>() {
 
     interface OnItemClickListener {
         fun onItemClick(position: Int)
     }
-
-    var clickListener: OnItemClickListener? = clickListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemView {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_layout, parent, false)
@@ -33,40 +31,25 @@ class FileAdapter(private val fileSource: FileSource, clickListener: OnItemClick
     }
 
     override fun onBindViewHolder(holder: ItemView?, position: Int) {
-        holder?.bindDate(fileSource.getIndex(position), fileSource.getIndexState(position))
+        holder?.apply {
+            val data = fileSource.getIndex(position)
+            text.text = data.name
+            image.setImageResource(when (data.type) {
+                FileModel.FileType.Folder -> R.drawable.folder
+                FileModel.FileType.File -> R.drawable.file
+                FileModel.FileType.Music -> R.drawable.file_audio
+                FileModel.FileType.Video -> R.drawable.file_video
+                FileModel.FileType.Image -> R.drawable.file_image
+            })
+            shadow.visibility = if (data.select) View.VISIBLE else View.INVISIBLE
+        }
     }
 
     override fun getItemCount() = fileSource.size
 
     class ItemView(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val text: TextView = itemView.findViewById(R.id.fileName)
-        private val image: ImageView = itemView.findViewById(R.id.fileImage)
-        private val shadow: View = itemView.findViewById(R.id.item_shadow)
-
-        enum class FileType {
-            Folder, File, Music, Video, Image
-        }
-
-        fun bindDate(file: File, select: Boolean = false) {
-            val name = file.name
-            text.text = name
-            val type: FileType = if (file.isDirectory) FileType.Folder
-            else if (name.endsWith(".jpg", true))
-                FileType.Image
-            else if (name.endsWith(".mp4", true))
-                FileType.Video
-            else if (name.endsWith(".mp3", true))
-                FileType.Music
-            else
-                FileType.File
-            image.setImageResource(when (type) {
-                FileType.Folder -> R.drawable.folder
-                FileType.File -> R.drawable.file
-                FileType.Music -> R.drawable.file_audio
-                FileType.Video -> R.drawable.file_video
-                FileType.Image -> R.drawable.file_image
-            })
-            shadow.visibility = if (select) View.VISIBLE else View.INVISIBLE
-        }
+        val text: TextView = itemView.findViewById(R.id.fileName)
+        val image: ImageView = itemView.findViewById(R.id.fileImage)
+        val shadow: View = itemView.findViewById(R.id.item_shadow)
     }
 }

@@ -15,7 +15,6 @@ import android.provider.Settings
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +23,7 @@ import java.io.File
 
 /**
  * Created by lthee on 2018/1/6.
+ * FilePickDialogFragment
  */
 class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener, View.OnClickListener {
     override fun onClick(view: View) {
@@ -48,8 +48,8 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
             }.show(fragmentManager, "Create Folder")
             R.id.select_button -> {
                 if (selectFolder)
-                    listener?.select(fileSource.workDir.absolutePath)
-                else listener?.select(*fileSource.selectedFile.toTypedArray())
+                    listener.select(fileSource.workDir.absolutePath)
+                else listener.select(*fileSource.selectedFile.toTypedArray())
                 dismiss()
             }
             R.id.folder_back -> {
@@ -68,12 +68,12 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
 
     override fun onItemClick(position: Int) {
         val file = fileSource.getIndex(position)
-        if (file.isDirectory) {
+        if (file.type == FileModel.FileType.Folder) {
             fileSource.cd(file.name)
             fileAdapt.notifyDataSetChanged()
             folderName.text = fileSource.workDir.name
         } else if (!selectFolder) {
-            if (file.isFile) {
+            if (file.type != FileModel.FileType.Folder) {
                 if (multiSelect) {
                     fileSource.multiSelect(position)
                     fileAdapt.notifyItemChanged(position)
