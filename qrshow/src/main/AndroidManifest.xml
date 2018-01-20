@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.kreal.widget.qrshow">
+
+    <application>
+        <activity
+            android:name=".QRActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:noHistory="true"
+            android:theme="@style/qr_theme.Transparent" />
+    </application>
+
+</manifest>

@@ -1,1 +1,1 @@
-include ':app', ':filepickdialog'
+include ':app', ':filepickdialog', ':qrshow'

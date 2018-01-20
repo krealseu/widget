@@ -17,6 +17,12 @@
             android:layout_height="wrap_content"
             android:text="Test FilePickDialog"
             />
+        <Button
+            android:id="@+id/test_qr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Test QR"
+            />
         <TextView
             android:id="@+id/result_view"
             android:layout_width="wrap_content"
