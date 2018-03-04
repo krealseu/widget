@@ -12,12 +12,21 @@
         android:orientation="vertical"
         android:theme="@style/AlertDialog.AppCompat.Light">
 
+        <TextView
+            android:id="@+id/folder_name"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:background="@drawable/shadow"
+            android:gravity="center"
+            android:textStyle="bold" />
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/fileList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/control_panel"
-            android:layout_alignParentTop="true"
+            android:layout_below="@+id/folder_name"
             android:scrollbarStyle="insideOverlay"
             android:scrollbars="vertical" />
 
@@ -46,7 +55,7 @@
                     android:src="@drawable/ic_action_back" />
 
                 <TextView
-                    android:id="@+id/folder_name"
+                    android:id="@+id/folder_name1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -108,11 +117,11 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="10dp"
             android:text="@string/ask_grant"
             android:textSize="20dp"
-            android:textStyle="italic"
-            android:padding="10dp"
-            android:gravity="center"/>
+            android:textStyle="italic" />
 
         <Button
             android:id="@+id/grant_button"
@@ -124,11 +133,11 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="10dp"
             android:text="@string/go_setting_grant"
             android:textSize="20dp"
-            android:textStyle="italic"
-            android:padding="10dp"
-            android:gravity="center"/>
+            android:textStyle="italic" />
 
         <Button
             android:id="@+id/go_setting_button"

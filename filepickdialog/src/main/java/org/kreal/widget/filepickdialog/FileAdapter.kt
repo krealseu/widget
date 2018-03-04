@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 
@@ -34,14 +35,18 @@ class FileAdapter(private val fileSource: FileSource, val clickListener: OnItemC
         holder?.apply {
             val data = fileSource.getIndex(position)
             text.text = data.name
-            image.setImageResource(when (data.type) {
-                FileModel.FileType.Folder -> R.drawable.folder
-                FileModel.FileType.File -> R.drawable.file
-                FileModel.FileType.Music -> R.drawable.file_audio
-                FileModel.FileType.Video -> R.drawable.file_video
-                FileModel.FileType.Image -> R.drawable.file_image
-            })
-            shadow.visibility = if (data.select) View.VISIBLE else View.INVISIBLE
+            if (data.isDirectory) {
+                image.setImageResource(R.drawable.folder)
+            } else if (data.isFile) {
+                val type = data.type.substring(0, 5)
+                image.setImageResource(when (type) {
+                    "video" -> R.drawable.file_video
+                    "image" -> R.drawable.file_image
+                    "audio" -> R.drawable.file_audio
+                    else -> R.drawable.file
+                })
+            }
+            shadow.visibility = if (fileSource.getState(data) != 0) View.VISIBLE else View.INVISIBLE
         }
     }
 

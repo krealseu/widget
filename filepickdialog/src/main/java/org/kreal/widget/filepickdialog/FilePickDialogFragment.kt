@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.support.v4.provider.DocumentFile
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -32,14 +33,8 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
             R.id.newFile_button -> EditDialog().apply {
                 title = "Create Folder"
                 success = {
-                    val file = File(fileSource.workDir, it)
-                    if (!file.exists())
-                        if (file.mkdir()) {
-                            fileSource.workDir = file
-                            folderName.text = fileSource.workDir.name
-                            fileAdapt.notifyDataSetChanged()
-                        } else Unit
-                    else if (file.isDirectory) {
+                    val file = fileSource.workDir.createDirectory(it)
+                    if (file.isDirectory) {
                         fileSource.cd(it)
                         folderName.text = fileSource.workDir.name
                         fileAdapt.notifyDataSetChanged()
@@ -48,8 +43,8 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
             }.show(fragmentManager, "Create Folder")
             R.id.select_button -> {
                 if (selectFolder)
-                    listener.select(fileSource.workDir.absolutePath)
-                else listener.select(*fileSource.selectedFile.toTypedArray())
+                    listener.select(fileSource.workDir.uri)
+                else listener.select(*fileSource.selectUri.toTypedArray())
                 dismiss()
             }
             R.id.folder_back -> {
@@ -68,19 +63,18 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
 
     override fun onItemClick(position: Int) {
         val file = fileSource.getIndex(position)
-        if (file.type == FileModel.FileType.Folder) {
+        if (file.isDirectory) {
             fileSource.cd(file.name)
             fileAdapt.notifyDataSetChanged()
             folderName.text = fileSource.workDir.name
         } else if (!selectFolder) {
-            if (file.type != FileModel.FileType.Folder) {
-                if (multiSelect) {
-                    fileSource.multiSelect(position)
+            if (file.isFile) {
+                fileSource.select(file)
+                if (multiSelect)
                     fileAdapt.notifyItemChanged(position)
-                } else {
-                    fileSource.singleSelect(position)
-                    fileAdapt.notifyItemRangeChanged(0, fileSource.size)
-                }
+                else
+                    fileAdapt.notifyDataSetChanged()
+
             }
         }
 
@@ -99,9 +93,17 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
     var selectFolder = false
     var defaultPath: String = Environment.getExternalStorageDirectory().path
     var miniType = "*/*"
+        set(value) {
+            fileSource.mineType = value
+            field = value
+        }
     var multiSelect = false
+        set(value) {
+            fileSource.multiSelect = value
+            field = value
+        }
 
-    private val fileSource = FileSource(defaultPath, miniType)
+    private val fileSource = FileSource(DocumentFile.fromFile(File(defaultPath)))
     private val fileAdapt: FileAdapter = FileAdapter(fileSource, this)
 
     var cancel: () -> Unit = {}
@@ -110,9 +112,9 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
         listener = l
     }
 
-    fun setListener(lf: (result: Array<out String>) -> Unit) {
+    fun setListener(lf: (result: Array<out Uri>) -> Unit) {
         listener = object : OnSelectListener {
-            override fun select(vararg result: String) {
+            override fun select(vararg result: Uri) {
                 lf(result)
             }
         }
@@ -130,7 +132,6 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
 
     private fun showView() {
         if (checkPermissions(activity)) {
-            fileSource.cd("")
             fileAdapt.notifyDataSetChanged()
             filePickLayout.visibility = View.VISIBLE
             permissionAskLayout.visibility = View.INVISIBLE
@@ -196,7 +197,7 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
     }
 
     interface OnSelectListener {
-        fun select(vararg result: String)
+        fun select(vararg result: Uri)
     }
 
 }
