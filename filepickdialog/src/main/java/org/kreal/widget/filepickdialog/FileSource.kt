@@ -60,13 +60,13 @@ class FileSource(documentFile: DocumentFile, var multiSelect: Boolean = false, v
         get() = listFiles.size
         private set
 
-    fun cd(name: String) {
-        val file = if (name != "..") workDir.findFile(name) ?: return else workDir.parentFile ?: return
-
-        if (file.isDirectory && file.canRead()) {
+    fun cd(name: String): Boolean {
+        val file = if (name != "..") workDir.findFile(name) ?: return false else workDir.parentFile ?: return false
+        return if (file.isDirectory && file.canRead()) {
             workDir = file
             loadList(file)
-        }
+            true
+        } else false
     }
 
     fun getIndex(index: Int): DocumentFile = listFiles[index]
