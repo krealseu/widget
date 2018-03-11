@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import java.io.File
+import java.util.*
 
 /**
  * Created by lthee on 2018/1/6.
@@ -35,9 +36,14 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
                 success = {
                     val file = fileSource.workDir.createDirectory(it)
                     if (file.isDirectory) {
-                        fileSource.cd(it)
-                        folderName.text = fileSource.workDir.name
-                        fileAdapt.notifyDataSetChanged()
+                        if (fileSource.cd(it)) {
+                            val position = linearLayoutManager.findFirstVisibleItemPosition()
+                            val offset = linearLayoutManager.getChildAt(0)?.top ?: 0
+                            val result = position to offset
+                            history.push(result)
+                            folderName.text = fileSource.workDir.name
+                            fileAdapt.notifyDataSetChanged()
+                        }
                     }
                 }
             }.show(fragmentManager, "Create Folder")
@@ -48,9 +54,12 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
                 dismiss()
             }
             R.id.folder_back -> {
-                fileSource.cd("..")
-                folderName.text = fileSource.workDir.name
-                fileAdapt.notifyDataSetChanged()
+                if (fileSource.cd("..")) {
+                    val result = if (!history.isEmpty()) history.pop() else 0 to 0
+                    folderName.text = fileSource.workDir.name
+                    fileAdapt.notifyDataSetChanged()
+                    linearLayoutManager.scrollToPositionWithOffset(result.first, result.second)
+                }
             }
             R.id.go_setting_button -> {
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
@@ -64,9 +73,14 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
     override fun onItemClick(position: Int) {
         val file = fileSource.getIndex(position)
         if (file.isDirectory) {
-            fileSource.cd(file.name)
-            fileAdapt.notifyDataSetChanged()
-            folderName.text = fileSource.workDir.name
+            if (fileSource.cd(file.name)) {
+                val lastPosition = linearLayoutManager.findFirstVisibleItemPosition()
+                val offset = linearLayoutManager.getChildAt(0)?.top ?: 0
+                val result = lastPosition to offset
+                history.push(result)
+                fileAdapt.notifyDataSetChanged()
+                folderName.text = fileSource.workDir.name
+            }
         } else if (!selectFolder) {
             if (file.isFile) {
                 fileSource.select(file)
@@ -83,12 +97,14 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
     private lateinit var filePickLayout: RelativeLayout
     private lateinit var permissionAskLayout: LinearLayout
     private lateinit var recycleView: RecyclerView
+    private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var cancelButton: Button
     private lateinit var selectButton: Button
     private lateinit var createButton: Button
     private lateinit var listener: OnSelectListener
     private lateinit var folderName: TextView
     private lateinit var folderBack: ImageButton
+    private val history: Stack<Pair<Int, Int>> = Stack()
     private val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
     var selectFolder = false
     var defaultPath: String = Environment.getExternalStorageDirectory().path
@@ -161,7 +177,8 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
             it.findViewById<Button>(R.id.grant_button).setOnClickListener(this)
 
             recycleView.adapter = fileAdapt
-            recycleView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+            linearLayoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+            recycleView.layoutManager = linearLayoutManager
             recycleView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
         }
         return view

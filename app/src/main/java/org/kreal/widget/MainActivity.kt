@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         when (view.id) {
             R.id.test_file_pick -> {
                 FilePickDialogFragment().apply {
-//                    selectFolder = true
+                    selectFolder = true
 //                    multiSelect = true
                     setListener {
                         var string = ""
