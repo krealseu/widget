@@ -28,7 +28,8 @@ class FileSource(documentFile: DocumentFile, var multiSelect: Boolean = false, v
         }
     }
 
-    private fun loadList(file: DocumentFile) {
+
+    private fun loadList(file: DocumentFile): Array<DocumentFile> {
         listFiles = file.listFiles().filter {
             if (it.isDirectory)
                 true
@@ -37,23 +38,26 @@ class FileSource(documentFile: DocumentFile, var multiSelect: Boolean = false, v
                 val types = it.type.split('/')
                 if (params.size != 2 || types.size != 2)
                     false
-                var result = 0
-                if (params[0] != "*")
-                    if (params[0] != types[0])
-                        result++
-                if (params[1] != "*")
-                    if (params[1] != types[1])
-                        result++
-                result == 0
+                else {
+                    var result = 0
+                    if (params[0] != "*")
+                        if (params[0] != types[0])
+                            result++
+                    if (params[1] != "*")
+                        if (params[1] != types[1])
+                            result++
+                    result == 0
+                }
             }
         }.toTypedArray()
-        listFiles.sortWith(kotlin.Comparator { f1, f2 ->
+        Arrays.sort(listFiles) { f1, f2 ->
             if (f1.isDirectory && f2.isFile)
                 -1
             else if (f1.isFile && f2.isDirectory)
                 1
             else f1.name.compareTo(f2.name, ignoreCase = true)
-        })
+        }
+        return listFiles
     }
 
     var size: Int = 0
@@ -61,10 +65,11 @@ class FileSource(documentFile: DocumentFile, var multiSelect: Boolean = false, v
         private set
 
     fun cd(name: String): Boolean {
-        val file = if (name != "..") workDir.findFile(name) ?: return false else workDir.parentFile ?: return false
+        val file = if (name != "..") workDir.findFile(name) ?: return false else workDir.parentFile
+                ?: return false
         return if (file.isDirectory && file.canRead()) {
             workDir = file
-            loadList(file)
+//            loadList(file)
             true
         } else false
     }

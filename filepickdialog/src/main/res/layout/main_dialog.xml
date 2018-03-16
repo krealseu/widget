@@ -48,19 +48,31 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="?android:selectableItemBackground"
+                    android:contentDescription="@string/back_ibtn"
                     android:paddingBottom="3dp"
                     android:paddingLeft="20dp"
                     android:paddingRight="20dp"
                     android:paddingTop="3dp"
                     android:src="@drawable/ic_action_back" />
 
+                <Spinner
+                    android:id="@+id/sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
                 <TextView
-                    android:id="@+id/folder_name1"
-                    android:layout_width="match_parent"
+                    android:id="@+id/num_select"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:background="@drawable/num_circle"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textSize="20dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:padding="3dp"
+                    android:textColor="@android:color/darker_gray"
                     android:textStyle="bold" />
 
             </LinearLayout>
@@ -79,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:minHeight="0dp"
-                    android:text="cancel"
+                    android:text="@string/cancel_btn"
                     android:textColor="#aa000000" />
 
                 <Button
@@ -89,7 +101,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:minHeight="0dp"
-                    android:text="new folder"
+                    android:text="@string/new_folder_btn"
                     android:textColor="#aa000000" />
 
                 <Button
@@ -99,7 +111,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:minHeight="0dp"
-                    android:text="select"
+                    android:text="@string/select_btn"
                     android:textColor="#aa000000" />
             </LinearLayout>
 
@@ -120,14 +132,14 @@
             android:gravity="center"
             android:padding="10dp"
             android:text="@string/ask_grant"
-            android:textSize="20dp"
+            android:textSize="20sp"
             android:textStyle="italic" />
 
         <Button
             android:id="@+id/grant_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Grant"
+            android:text="@string/grant_btn"
             android:theme="@style/Widget.AppCompat.Button.Borderless" />
 
         <TextView
@@ -136,14 +148,14 @@
             android:gravity="center"
             android:padding="10dp"
             android:text="@string/go_setting_grant"
-            android:textSize="20dp"
+            android:textSize="20sp"
             android:textStyle="italic" />
 
         <Button
             android:id="@+id/go_setting_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Go Setting"
+            android:text="@string/go_setting_btn"
             android:theme="@style/Widget.AppCompat.Button.Borderless" />
     </LinearLayout>
 
