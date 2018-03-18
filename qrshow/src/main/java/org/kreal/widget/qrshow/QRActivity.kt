@@ -6,6 +6,11 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.WindowManager
 
+/**
+ * Created by lthee on 2018/1/19.
+ * QRActivity和QRDialog只提供显示image的imageView，并调用QRShow处理。
+ */
+
 class QRActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +30,7 @@ class QRActivity : AppCompatActivity() {
     }
 
     companion object {
-        private val INFO = "QRActivity_info"
+        private const val INFO = "QRActivity_info"
 
         fun intent(context: Context, info: String): Intent {
             val intent = Intent(context, QRActivity::class.java)

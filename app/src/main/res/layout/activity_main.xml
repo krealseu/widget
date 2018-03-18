@@ -15,14 +15,14 @@
             android:id="@+id/test_file_pick"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Test FilePickDialog"
-            />
+            android:text="Test FilePickDialog" />
+
         <Button
             android:id="@+id/test_qr"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Test QR"
-            />
+            android:text="Test QR" />
+
         <TextView
             android:id="@+id/result_view"
             android:layout_width="wrap_content"
@@ -33,6 +33,13 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@android:color/transparent" />
+
     </LinearLayout>
+
 
 </android.support.constraint.ConstraintLayout>
