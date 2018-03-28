@@ -5,7 +5,6 @@ import android.app.FragmentManager
 import android.content.DialogInterface
 import android.os.AsyncTask
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,11 +15,12 @@ import android.widget.Toast
  * Created by lthee on 2018/1/19.
  * QRActivity和QRDialog只提供显示image的imageView，并调用QRShow处理。
  */
-class QRDialogFragment : DialogFragment(), View.OnLongClickListener {
+internal class QRDialogFragment : DialogFragment(), View.OnLongClickListener {
+    init {
+        setStyle(STYLE_NO_TITLE, 0)
+    }
+
     override fun onLongClick(p0: View?): Boolean {
-//        val clipData = ClipData.newPlainText("QR_Info", info)
-//        val clipboard: ClipboardManager = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-//        clipboard.primaryClip = clipData
         Toast.makeText(activity, info, Toast.LENGTH_LONG).show()
         return true
     }
@@ -32,13 +32,12 @@ class QRDialogFragment : DialogFragment(), View.OnLongClickListener {
     var info: String = ""
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.qr_layout, container, false)
-        imageView = view.findViewById(R.id.qr)
+        imageView = ImageView(activity)
         imageView.setOnLongClickListener(this)
         if (info == "")
             info = savedInstanceState?.getString(key) ?: ""
         qrShow = QRShow(imageView)
-        return view
+        return imageView
     }
 
     override fun onResume() {
@@ -63,19 +62,14 @@ class QRDialogFragment : DialogFragment(), View.OnLongClickListener {
 
     override fun show(manager: FragmentManager, tag: String) {
         val fragment = manager.findFragmentByTag(tag)
-        if (fragment == null)
-            return super.show(manager, tag)
-        else
-            (fragment as QRDialogFragment).cancel = this.cancel
+        if (fragment is QRDialogFragment)
+            fragment.cancel = this.cancel
+        else return super.show(manager, tag)
     }
 
-    override fun dismiss() {
-        super.dismiss()
-        cancel()
-    }
 
-    override fun onCancel(dialog: DialogInterface?) {
-        super.onCancel(dialog)
+    override fun onDismiss(dialog: DialogInterface?) {
+        super.onDismiss(dialog)
         cancel()
     }
 }

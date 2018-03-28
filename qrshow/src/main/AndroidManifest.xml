@@ -8,7 +8,7 @@
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:noHistory="true"
-            android:theme="@style/qr_theme.Transparent" />
+            android:theme="@style/Theme.AppCompat.DayNight.Transparent" />
     </application>
 
 </manifest>

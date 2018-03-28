@@ -11,7 +11,7 @@ import android.view.WindowManager
  * QRActivity和QRDialog只提供显示image的imageView，并调用QRShow处理。
  */
 
-class QRActivity : AppCompatActivity() {
+internal class QRActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

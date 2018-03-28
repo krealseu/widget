@@ -1,9 +1,11 @@
 package org.kreal.widget.qrshow
 
 import android.app.Activity
+import android.app.Fragment
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.AsyncTask
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -45,21 +47,18 @@ class QRShow private constructor(private val context: Context? = null, private v
     fun get(timeout: Long, unit: TimeUnit): Bitmap? = loadTask?.get(timeout, unit)
 
     infix fun show(info: String): QRShow {
-        if (context != null) {
-            if (context is Activity) {
-                QRDialogFragment().apply { this.info = info }.show(context.fragmentManager, "QR")
-            } else {
-                val intent = QRActivity.intent(context, info)
-                context.startActivity(intent)
-            }
-        } else {
-            if (loadTask == null)
+        when {
+            context is Activity -> QRDialogFragment().apply { this.info = info }.show(context.fragmentManager, "QR")
+            context is Fragment -> QRDialogFragment().apply { this.info = info }.show(context.fragmentManager, "QR")
+            context != null -> context.startActivity(QRActivity.intent(context, info))
+            loadTask == null -> {
                 loadTask = LoadTask(imageView, width, height)
-            loadTask?.also {
-                when (it.status) {
-                    AsyncTask.Status.PENDING -> it.execute(info)
-                    AsyncTask.Status.FINISHED -> imageView?.setImageBitmap(it.get())
-                    else -> Unit
+                loadTask?.also {
+                    when (it.status) {
+                        AsyncTask.Status.PENDING -> it.execute(info)
+                        AsyncTask.Status.FINISHED -> imageView?.setImageBitmap(it.get())
+                        else -> Unit
+                    }
                 }
             }
         }
@@ -84,9 +83,9 @@ class QRShow private constructor(private val context: Context? = null, private v
             super.onPreExecute()
             imageView.get()?.also {
                 progressBar = WeakReference(ProgressBar(it.context))
-                viewGroup = WeakReference(it.parent as ViewGroup)
+                viewGroup = WeakReference(if (it.parent == null) null else it.parent as ViewGroup)
                 imageViewIndex = viewGroup.get()?.indexOfChild(it) ?: 0
-                imageViewLayoutParams = it.layoutParams
+                imageViewLayoutParams = it.layoutParams ?: ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 viewGroup.get()?.also {
                     it.removeView(imageView.get())
                     it.addView(progressBar.get(), imageViewIndex, imageViewLayoutParams)
