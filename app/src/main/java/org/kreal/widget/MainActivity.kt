@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
@@ -17,13 +18,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         when (view.id) {
             R.id.test_file_pick -> {
                 FilePickDialogFragment().apply {
-                    selectFolder = true
-//                    multiSelect = true
+                    type = FilePickDialogFragment.DIRECTORY_CHOOSE
                     setListener {
                         var string = ""
                         it.forEach {
                             string += it
                         }
+                        Log.i("asd", "asdsdd")
                         resultView.text = string
                     }
                 }.show(fragmentManager, "l")
@@ -52,5 +53,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(arrayOf(Manifest.permission.WRITE_SETTINGS), 0)
         }
-    }
+        FilePickDialogFragment().apply {
+            type = FilePickDialogFragment.DIRECTORY_CHOOSE
+            setListener {
+                var string = ""
+                it.forEach {
+                    string += it
+                }
+                Log.i("asd", "asdsdd")
+                resultView.text = string
+            }
+        }.show(fragmentManager, "l")    }
 }

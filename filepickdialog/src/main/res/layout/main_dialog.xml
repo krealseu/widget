@@ -48,7 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="?android:selectableItemBackground"
-                    android:contentDescription="@string/back_ibtn"
+                    android:contentDescription="@string/back_btn"
                     android:paddingBottom="3dp"
                     android:paddingLeft="20dp"
                     android:paddingRight="20dp"
@@ -86,33 +86,31 @@
 
                 <Button
                     android:id="@+id/cancel_button"
-                    style="@style/Widget.AppCompat.Button.Borderless"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:minHeight="0dp"
                     android:text="@string/cancel_btn"
-                    android:textColor="#aa000000" />
+                     />
 
                 <Button
                     android:id="@+id/newFile_button"
-                    style="@style/Widget.AppCompat.Button.Borderless"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:minHeight="0dp"
-                    android:text="@string/new_folder_btn"
-                    android:textColor="#aa000000" />
+                    android:text="@string/new_folder_btn" />
 
                 <Button
                     android:id="@+id/select_button"
-                    style="@style/Widget.AppCompat.Button.Borderless"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:minHeight="0dp"
-                    android:text="@string/select_btn"
-                    android:textColor="#aa000000" />
+                    android:text="@string/select_btn" />
             </LinearLayout>
 
         </LinearLayout>

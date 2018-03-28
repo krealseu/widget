@@ -1,6 +1,7 @@
 package org.kreal.widget.filepickdialog
 
 import android.Manifest
+import android.app.AlertDialog
 import android.app.DialogFragment
 import android.app.FragmentManager
 import android.content.Context
@@ -20,57 +21,59 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import org.kreal.storage.Storage
-import java.io.File
 import java.util.*
 
 /**
  * Created by lthee on 2018/1/6.
  * FilePickDialogFragment
  */
-class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener, View.OnClickListener, AdapterView.OnItemSelectedListener {
+class FilePickDialogFragment : DialogFragment(),
+        FileAdapter.OnItemClickListener, View.OnClickListener, AdapterView.OnItemSelectedListener {
+
+    init {
+        setStyle(STYLE_NO_TITLE, 0)
+        retainInstance = true
+    }
+
     override fun onNothingSelected(p0: AdapterView<*>?) {
     }
 
     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, position: Int, p3: Long) {
+        if (fileSource.workDir.uri.path.startsWith(storage.getVolumes()[position].path))
+            return
         history.clear()
-        if (!storage.isGrant(storage.devs[position])) {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-            startActivityForResult(intent, 22)
-        } else {
-            history.clear()
-            val dev = storage.devs[position]
-            fileSource.workDir = if (dev == "sdcard") DocumentFile.fromFile(File(defaultPath)) else DocumentFile.fromFile(File("/storage/$dev"))
-            fileAdapt.notifyDataSetChanged()
-            folderName.text = fileSource.workDir.name
-        }
+        fileSource.workDir = storage.getDocumentFile(storage.getAvailableVolumes()[position].path) ?: return
+        fileAdapt.notifyDataSetChanged()
+        folderName.text = fileSource.workDir.name
+
     }
 
     override fun onClick(view: View) {
         when (view.id) {
-            R.id.cancel_button -> dialog.cancel()
-            R.id.newFile_button -> EditDialog().apply {
-                title = "Create Folder"
-                success = { name->
-                    val file = fileSource.workDir.createDirectory(name)
-                    file?.let {
-                        if (it.isDirectory) {
-                            if (fileSource.cd(name)) {
-                                val position = linearLayoutManager.findFirstVisibleItemPosition()
-                                val offset = linearLayoutManager.getChildAt(0)?.top ?: 0
-                                val result = position to offset
-                                history.push(result)
-                                folderName.text = fileSource.workDir.name
-                                fileAdapt.notifyDataSetChanged()
+            R.id.go_setting_button -> startActivityForResult(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + activity.packageName)), 424)
+            R.id.grant_button -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) requestPermissions(permissions, 233)
+            R.id.cancel_button -> dismiss()
+            R.id.newFile_button ->
+                EditDialog().apply {
+                    title = "Create Folder"
+                    success = { name ->
+                        val file = fileSource.workDir.createDirectory(name)
+                        file?.let {
+                            if (it.isDirectory) {
+                                if (fileSource.cd(name)) {
+                                    val position = linearLayoutManager.findFirstVisibleItemPosition()
+                                    val offset = linearLayoutManager.getChildAt(0)?.top ?: 0
+                                    val result = position to offset
+                                    history.push(result)
+                                    folderName.text = fileSource.workDir.name
+                                    fileAdapt.notifyDataSetChanged()
+                                }
                             }
                         }
                     }
-                }
-            }.show(fragmentManager, "Create Folder")
+                }.show(fragmentManager, "Create Folder")
             R.id.select_button -> {
-                if (selectFolder)
-                    listener.select(fileSource.workDir.uri)
-                else listener.select(*fileSource.selectUri.toTypedArray())
+                isSelect = true
                 dismiss()
             }
             R.id.folder_back -> {
@@ -81,19 +84,12 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
                     linearLayoutManager.scrollToPositionWithOffset(result.first, result.second)
                 }
             }
-            R.id.go_setting_button -> {
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package:" + activity.packageName)
-                startActivityForResult(intent, 424)
-            }
-            R.id.grant_button -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) requestPermissions(permissions, 233)
         }
     }
 
-    override fun onItemClick(position: Int) {
-        val file = fileSource.getIndex(position)
-        if (file.isDirectory) {
-            if (fileSource.cd(file.name)) {
+    override fun onItemClick(data: DocumentFile, position: Int) {
+        if (data.isDirectory) {
+            if (fileSource.cd(data.name)) {
                 val lastPosition = linearLayoutManager.findFirstVisibleItemPosition()
                 val offset = linearLayoutManager.getChildAt(0)?.top ?: 0
                 val result = lastPosition to offset
@@ -101,18 +97,19 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
                 fileAdapt.notifyDataSetChanged()
                 folderName.text = fileSource.workDir.name
             }
-        } else if (!selectFolder) {
-            if (file.isFile) {
-                fileSource.select(file)
-                if (multiSelect)
-                    fileAdapt.notifyItemChanged(position)
-                else
-                    fileAdapt.notifyDataSetChanged()
+        } else when (type) {
+            MULTI_FILE_PICK -> {
+                fileSource.select(data)
+                fileAdapt.notifyItemChanged(position)
                 numView.text = fileSource.selectUri.size.toString()
-
+            }
+            FILE_PICK -> {
+                fileSource.selectUri.clear()
+                fileSource.select(data)
+                fileAdapt.notifyDataSetChanged()
+                numView.text = fileSource.selectUri.size.toString()
             }
         }
-
     }
 
     private lateinit var filePickLayout: RelativeLayout
@@ -127,26 +124,28 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
     private lateinit var folderBack: ImageButton
     private lateinit var storageSelect: Spinner
     private lateinit var numView: TextView
+
     private lateinit var storage: Storage
+    private var isSelect: Boolean = false
     private val history: Stack<Pair<Int, Int>> = Stack()
     private val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
-    var selectFolder = false
-    var defaultPath: String = Environment.getExternalStorageDirectory().path
-    var miniType = "*/*"
+    private val fileSource = FileSource(DocumentFile.fromFile(Environment.getExternalStorageDirectory()))
+    private val fileAdapt: FileAdapter = FileAdapter(fileSource, this)
+
+    var type: Int = 1
+        set(value) {
+            field = when (value) {
+                DIRECTORY_CHOOSE, MULTI_FILE_PICK -> value
+                else -> FILE_PICK
+            }
+        }
+
+    var miniType: String = "*/*"
         set(value) {
             fileSource.mineType = value
             field = value
         }
-    var multiSelect = false
-        set(value) {
-            fileSource.multiSelect = value
-            field = value
-        }
 
-    private val fileSource = FileSource(DocumentFile.fromFile(File(defaultPath)))
-    private val fileAdapt: FileAdapter = FileAdapter(fileSource, this)
-
-    var cancel: () -> Unit = {}
 
     fun setListener(l: OnSelectListener) {
         listener = l
@@ -154,7 +153,7 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
 
     fun setListener(lf: (result: Array<out Uri>) -> Unit) {
         listener = object : OnSelectListener {
-            override fun select(vararg result: Uri) {
+            override fun onSelect(vararg result: Uri) {
                 lf(result)
             }
         }
@@ -170,20 +169,27 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
         return true
     }
 
+    /**
+     * 判断选择显示授权界面还是主界面
+     */
     private fun showView() {
         if (checkPermissions(activity)) {
             fileAdapt.notifyDataSetChanged()
             filePickLayout.visibility = View.VISIBLE
-            permissionAskLayout.visibility = View.INVISIBLE
+            permissionAskLayout.visibility = View.GONE
         } else {
-            filePickLayout.visibility = View.INVISIBLE
+            filePickLayout.visibility = View.GONE
             permissionAskLayout.visibility = View.VISIBLE
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        storage = Storage(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) context else activity)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.main_dialog, container)
-        storage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) Storage(context) else Storage(activity)
         view.also {
             filePickLayout = it.findViewById(R.id.file_pick_layout)
             permissionAskLayout = it.findViewById(R.id.permission_ask)
@@ -195,13 +201,14 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
             folderBack = it.findViewById(R.id.folder_back)
             storageSelect = it.findViewById(R.id.sp)
             numView = it.findViewById(R.id.num_select)
-
-            storageSelect.adapter = ArrayAdapter<String>(activity, R.layout.support_simple_spinner_dropdown_item, storage.devs)
+            val volumes = storage.getAvailableVolumes()
+            storageSelect.adapter = ArrayAdapter<String>(activity, R.layout.support_simple_spinner_dropdown_item, Array(volumes.size) { volumes[it].uuid })
             storageSelect.onItemSelectedListener = this
             cancelButton.setOnClickListener(this)
             selectButton.setOnClickListener(this)
             createButton.setOnClickListener(this)
             folderBack.setOnClickListener(this)
+
             it.findViewById<Button>(R.id.go_setting_button).setOnClickListener(this)
             it.findViewById<Button>(R.id.grant_button).setOnClickListener(this)
 
@@ -215,45 +222,55 @@ class FilePickDialogFragment : DialogFragment(), FileAdapter.OnItemClickListener
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>?, grantResults: IntArray?) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        showView()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        super.onActivityResult(requestCode, resultCode, data)
-        val path = data.data.path
-        if (path.startsWith("/tree") and path.endsWith(':')) {
-            (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) context else activity).contentResolver.takePersistableUriPermission(data.data, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-            storage.reload()
-        }
-        showView()
+        this.showView()
     }
 
     override fun onResume() {
         super.onResume()
-        showView()
-        if (!selectFolder) {
-            createButton.visibility = View.INVISIBLE
-            numView.visibility = View.VISIBLE
-            numView.text = fileSource.selectUri.size.toString()
-        } else {
-            createButton.visibility = View.VISIBLE
-            numView.visibility = View.GONE
+        this.showView()
+        when (type) {
+            DIRECTORY_CHOOSE -> {
+                createButton.visibility = View.VISIBLE
+                numView.visibility = View.GONE
+            }
+            else -> {
+                createButton.visibility = View.INVISIBLE
+                numView.visibility = View.VISIBLE
+            }
         }
+        numView.text = fileSource.selectUri.size.toString()
         folderName.text = fileSource.workDir.name
     }
 
-    override fun onCancel(dialog: DialogInterface?) {
-        super.onCancel(dialog)
-        cancel
+    override fun show(manager: FragmentManager, tag: String) {
+        val fragment = manager.findFragmentByTag(tag)
+        if (fragment is FilePickDialogFragment)
+            fragment.listener = this.listener
+        else super.show(manager, tag)
     }
 
-    override fun show(manager: FragmentManager, tag: String?) {
-        if (tag == null || manager.findFragmentByTag(tag) == null)
-            return super.show(manager, tag)
+    override fun onDismiss(dialog: DialogInterface?) {
+        super.onDismiss(dialog)
+        if (isSelect) when (type) {
+            DIRECTORY_CHOOSE -> listener.onSelect(fileSource.workDir.uri)
+            else -> listener.onSelect(*fileSource.selectUri.toTypedArray())
+        }
+    }
+
+    override fun onDestroyView() {
+        if (dialog != null && retainInstance)
+            dialog.setDismissMessage(null)
+        super.onDestroyView()
+    }
+
+    companion object {
+        const val FILE_PICK: Int = 1
+        const val DIRECTORY_CHOOSE: Int = 2
+        const val MULTI_FILE_PICK: Int = 3
     }
 
     interface OnSelectListener {
-        fun select(vararg result: Uri)
+        fun onSelect(vararg result: Uri)
     }
 
 }

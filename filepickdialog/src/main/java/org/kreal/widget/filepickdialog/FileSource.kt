@@ -8,7 +8,7 @@ import java.util.*
  * Created by lthee on 2018/1/7.
  * 数据源
  */
-class FileSource(documentFile: DocumentFile, var multiSelect: Boolean = false, var mineType: String = "*/*") {
+internal class FileSource(documentFile: DocumentFile, var mineType: String = "*/*") {
 
     var workDir: DocumentFile = documentFile
         set(value) {
@@ -18,7 +18,7 @@ class FileSource(documentFile: DocumentFile, var multiSelect: Boolean = false, v
             }
         }
 
-    val selectUri = ArrayList<Uri>()
+    val selectUri: MutableList<Uri> = arrayListOf()
 
     private var listFiles: Array<DocumentFile> = arrayOf()
 
@@ -74,14 +74,12 @@ class FileSource(documentFile: DocumentFile, var multiSelect: Boolean = false, v
         } else false
     }
 
-    fun getIndex(index: Int): DocumentFile = listFiles[index]
+    operator fun get(index: Int): DocumentFile = listFiles[index]
 
     fun getState(documentFile: DocumentFile): Int = if (selectUri.contains(documentFile.uri)) 1 else 0
 
     fun select(documentFile: DocumentFile) {
-        val removeOrAdd = selectUri.contains(documentFile.uri)
-        if (!multiSelect) selectUri.clear()
-        if (removeOrAdd)
+        if (selectUri.contains(documentFile.uri))
             selectUri.remove(documentFile.uri)
         else selectUri.add(documentFile.uri)
     }
